@@ -19,17 +19,24 @@ const Login = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Form submitted with:", { email, password }); // Debug
     setIsLoading(true);
     
     try {
+      console.log("Attempting Supabase auth..."); // Debug
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      console.log("Login attempt:", { data, error }); // Debug log
+      console.log("Supabase response:", { 
+        error: error?.message, 
+        user: data.user?.email, 
+        session: !!data.session 
+      }); // Debug
 
       if (error) {
+        console.log("Authentication error detected"); // Debug
         // Handle authentication errors
         if (error.message.includes('Invalid login credentials')) {
           toast({
@@ -44,22 +51,29 @@ const Login = () => {
             variant: "destructive",
           });
         }
-      } else if (data.user && data.session) {
-        // Only show success if both user and session exist
+        return; // Early return to prevent further execution
+      } 
+      
+      if (data.user && data.session) {
+        console.log("Login successful"); // Debug
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in to Tayer.",
         });
         navigate("/");
-      } else {
-        // This handles the case where there's no error but also no valid session
-        toast({
-          title: "Login failed",
-          description: "Unable to authenticate. Please check your credentials.",
-          variant: "destructive",
-        });
+        return;
       }
+      
+      // If we get here, something unexpected happened
+      console.log("Unexpected auth state"); // Debug
+      toast({
+        title: "Login failed",
+        description: "Unable to authenticate. Please check your credentials.",
+        variant: "destructive",
+      });
+      
     } catch (error) {
+      console.log("Catch block error:", error); // Debug
       toast({
         title: "Login failed",
         description: "An unexpected error occurred. Please try again.",
