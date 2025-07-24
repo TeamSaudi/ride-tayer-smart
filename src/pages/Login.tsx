@@ -27,6 +27,8 @@ const Login = () => {
         password,
       });
 
+      console.log("Login attempt:", { data, error }); // Debug log
+
       if (error) {
         // Handle authentication errors
         if (error.message.includes('Invalid login credentials')) {
@@ -42,12 +44,20 @@ const Login = () => {
             variant: "destructive",
           });
         }
-      } else if (data.user) {
+      } else if (data.user && data.session) {
+        // Only show success if both user and session exist
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in to Tayer.",
         });
         navigate("/");
+      } else {
+        // This handles the case where there's no error but also no valid session
+        toast({
+          title: "Login failed",
+          description: "Unable to authenticate. Please check your credentials.",
+          variant: "destructive",
+        });
       }
     } catch (error) {
       toast({
