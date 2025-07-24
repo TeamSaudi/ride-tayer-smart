@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, MapPin, Users, Star, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import newTayerLogo from "@/assets/new-tayer-logo.png";
+import tayerNewLogo from "@/assets/tayer-new-logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -21,13 +21,17 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center">
-              <img src={newTayerLogo} alt="Tayer" className="h-14 w-14" />
+            <Link to="/" className="flex items-center space-x-3">
+              <img src={tayerNewLogo} alt="Tayer" className="h-12 w-12" />
+              <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
+                TAYER
+              </span>
             </Link>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center justify-center flex-1">
+            <div className="flex items-center space-x-8">
             {navigation.map((item) => {
               const Icon = item.icon;
               return (
@@ -46,6 +50,7 @@ const Navbar = () => {
                 </Link>
               );
             })}
+            </div>
           </div>
 
           {/* Desktop Auth Buttons */}

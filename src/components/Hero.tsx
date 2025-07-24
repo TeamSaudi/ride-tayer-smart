@@ -44,7 +44,7 @@ const Hero = () => {
                 Our Mission
               </span>
             </h1>
-            <p className="text-xl sm:text-2xl text-foreground max-w-3xl mx-auto leading-relaxed">
+            <p className="text-xl sm:text-2xl text-foreground max-w-3xl mx-auto leading-relaxed font-bold">
               Discover the best transportation options near you. From buses to bikes, 
               we help you move smarter across Egypt.
             </p>
