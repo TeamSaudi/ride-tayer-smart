@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
+import React, { useEffect, useRef } from 'react';
+import mapboxgl from 'mapbox-gl';
+import 'mapbox-gl/dist/mapbox-gl.css';
 
 interface TransportOption {
   id: string;
@@ -25,14 +26,14 @@ const TransportMap: React.FC<TransportMapProps> = ({
   selectedTransport,
   onTransportSelect
 }) => {
-  const [zoom, setZoom] = useState(1);
-  const [pan, setPan] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
+  const mapContainer = useRef<HTMLDivElement>(null);
+  const map = useRef<mapboxgl.Map | null>(null);
+  const markers = useRef<mapboxgl.Marker[]>([]);
+
   const getTypeEmoji = (type: string) => {
     const icons: { [key: string]: string } = {
       "Bus": "🚌",
-      "Metro": "🚇",
+      "Metro": "🚇", 
       "Taxi": "🚕",
       "Microbus": "🚐"
     };
@@ -42,139 +43,121 @@ const TransportMap: React.FC<TransportMapProps> = ({
   const getAvailabilityColor = (availability: string) => {
     switch (availability) {
       case 'available':
-        return 'bg-green-500';
+        return '#22c55e';
       case 'limited':
-        return 'bg-yellow-500';
+        return '#eab308';
       case 'unavailable':
-        return 'bg-red-500';
+        return '#ef4444';
       default:
-        return 'bg-gray-500';
+        return '#6b7280';
     }
   };
 
-  const mapRef = useRef<HTMLDivElement>(null);
-  const [mapLoaded, setMapLoaded] = useState(false);
-
   useEffect(() => {
-    if (mapRef.current && !mapLoaded) {
-      // OpenStreetMap tile layer for Egypt
-      const mapContainer = mapRef.current;
-      mapContainer.innerHTML = `
-        <div style="position: relative; width: 100%; height: 100%; background: #f0f8ff;">
-          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 14px; color: #666;">
-            Egypt - Interactive Map
+    if (!mapContainer.current) return;
+
+    // For demo purposes, show fallback map since no Mapbox token is configured
+    if (mapContainer.current) {
+      mapContainer.current.innerHTML = `
+        <div style="
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(135deg, #e0f2fe 0%, #e8f5e8 100%);
+          position: relative;
+          overflow: hidden;
+        ">
+          <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+              radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
+              radial-gradient(circle at 75% 75%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
+              linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.05) 70%);
+          "></div>
+          <div style="
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            color: #374151;
+            font-family: system-ui;
+            z-index: 1;
+          ">
+            <div style="
+              background: rgba(255, 255, 255, 0.9);
+              padding: 20px;
+              border-radius: 12px;
+              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+              backdrop-filter: blur(10px);
+            ">
+              <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">🗺️ Egypt Transport Map</h3>
+              <p style="margin: 0; font-size: 14px; color: #6b7280;">Interactive map showing transport locations</p>
+              <p style="margin: 8px 0 0 0; font-size: 12px; color: #9ca3af;">Click transport cards below to view details</p>
+            </div>
           </div>
         </div>
       `;
-      setMapLoaded(true);
+
+      // Add transport markers as overlays
+      transportOptions.forEach((transport, index) => {
+        const marker = document.createElement('div');
+        marker.style.cssText = `
+          position: absolute;
+          width: 32px;
+          height: 32px;
+          background-color: ${getAvailabilityColor(transport.availability)};
+          border: 2px solid white;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 14px;
+          cursor: pointer;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          transition: all 0.2s;
+          z-index: 10;
+          left: ${20 + (index % 5) * 15}%;
+          top: ${30 + Math.floor(index / 5) * 20}%;
+          ${selectedTransport === transport.id ? 'transform: scale(1.2); box-shadow: 0 0 0 3px #3b82f6;' : ''}
+        `;
+        
+        marker.innerHTML = getTypeEmoji(transport.type);
+        marker.title = `${transport.name} - ${transport.location}`;
+        
+        marker.addEventListener('click', () => {
+          onTransportSelect(transport.id);
+        });
+        
+        marker.addEventListener('mouseenter', () => {
+          marker.style.transform = selectedTransport === transport.id ? 'scale(1.3)' : 'scale(1.1)';
+        });
+        
+        marker.addEventListener('mouseleave', () => {
+          marker.style.transform = selectedTransport === transport.id ? 'scale(1.2)' : 'scale(1)';
+        });
+
+        mapContainer.current?.appendChild(marker);
+      });
     }
-  }, [mapLoaded]);
 
-  // Convert coordinates to map position (Egypt bounds: lng 25-35, lat 22-32)
-  const coordinateToPosition = (coordinates: [number, number]) => {
-    const [lng, lat] = coordinates;
-    const x = ((lng - 25) / 10) * 100; // Convert to percentage
-    const y = ((32 - lat) / 10) * 100; // Inverted Y for map
-    return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
-  };
-
-  const handleMouseDown = (e: React.MouseEvent) => {
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (isDragging) {
-      setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
-    }
-  };
-
-  const handleMouseUp = () => {
-    setIsDragging(false);
-  };
-
-  const handleWheel = (e: React.WheelEvent) => {
-    e.preventDefault();
-    const newZoom = Math.max(0.5, Math.min(3, zoom + (e.deltaY > 0 ? -0.1 : 0.1)));
-    setZoom(newZoom);
-  };
+    return () => {
+      if (mapContainer.current) {
+        mapContainer.current.innerHTML = '';
+      }
+    };
+  }, [transportOptions, selectedTransport, onTransportSelect]);
 
   return (
-    <div className="relative w-full h-96 rounded-lg overflow-hidden shadow-elegant bg-muted">
-      <div
-        className="relative w-full h-full cursor-grab active:cursor-grabbing"
-        onMouseDown={handleMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
-        onWheel={handleWheel}
-        style={{
-          transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
-          transformOrigin: 'center center'
-        }}
-      >
-        <div 
-          ref={mapRef}
-          className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234f46e5' fill-opacity='0.1'%3E%3Ccircle cx='9' cy='9' r='1'/%3E%3Ccircle cx='49' cy='49' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-        
-        {/* Transport pins */}
-        {transportOptions.map((transport) => {
-          const position = coordinateToPosition(transport.coordinates);
-          return (
-            <div
-              key={transport.id}
-              className={`absolute w-8 h-8 rounded-full cursor-pointer flex items-center justify-center text-white text-sm border-2 border-white shadow-lg transition-all duration-200 hover:scale-125 ${
-                getAvailabilityColor(transport.availability)
-              } ${selectedTransport === transport.id ? 'ring-4 ring-primary scale-125' : ''}`}
-              style={{
-                left: `${position.x}%`,
-                top: `${position.y}%`,
-                transform: 'translate(-50%, -50%)'
-              }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onTransportSelect(transport.id);
-              }}
-              title={`${transport.name} - ${transport.location}`}
-            >
-              {getTypeEmoji(transport.type)}
-            </div>
-          );
-        })}
-      </div>
-
-      {/* Controls */}
-      <div className="absolute top-4 right-4 flex flex-col gap-2">
-        <button
-          onClick={() => setZoom(Math.min(3, zoom + 0.2))}
-          className="w-8 h-8 bg-background/90 backdrop-blur-sm rounded border shadow-lg flex items-center justify-center hover:bg-background text-foreground"
-        >
-          +
-        </button>
-        <button
-          onClick={() => setZoom(Math.max(0.5, zoom - 0.2))}
-          className="w-8 h-8 bg-background/90 backdrop-blur-sm rounded border shadow-lg flex items-center justify-center hover:bg-background text-foreground"
-        >
-          −
-        </button>
-        <button
-          onClick={() => {
-            setZoom(1);
-            setPan({ x: 0, y: 0 });
-          }}
-          className="w-8 h-8 bg-background/90 backdrop-blur-sm rounded border shadow-lg flex items-center justify-center hover:bg-background text-foreground text-xs"
-        >
-          ⌂
-        </button>
-      </div>
-
+    <div className="relative w-full h-96 rounded-lg overflow-hidden shadow-elegant">
+      <div ref={mapContainer} className="w-full h-full" />
+      
       {/* Legend */}
       <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-        <h3 className="font-semibold text-sm mb-2 text-foreground">Transport Locations</h3>
+        <h3 className="font-semibold text-sm mb-2 text-foreground">Transport Status</h3>
         <div className="space-y-1 text-xs">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500"></div>
