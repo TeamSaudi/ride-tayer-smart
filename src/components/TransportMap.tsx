@@ -1,9 +1,6 @@
-import React, { useEffect, useRef, useState } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
+import egyptMap from "@/assets/egypt-map.png";
 
 interface TransportOption {
   id: string;
@@ -29,180 +26,84 @@ const TransportMap: React.FC<TransportMapProps> = ({
   selectedTransport,
   onTransportSelect
 }) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const [mapboxToken, setMapboxToken] = useState<string>('');
-  const [showTokenInput, setShowTokenInput] = useState(true);
-  const markersRef = useRef<mapboxgl.Marker[]>([]);
-
-  const initializeMap = () => {
-    if (!mapContainer.current || !mapboxToken) return;
-
-    try {
-      mapboxgl.accessToken = mapboxToken;
-      
-      map.current = new mapboxgl.Map({
-        container: mapContainer.current,
-        style: 'mapbox://styles/mapbox/light-v11',
-        center: [31.2357, 30.0444], // Cairo coordinates
-        zoom: 13,
-      });
-
-      // Add navigation controls
-      map.current.addControl(
-        new mapboxgl.NavigationControl(),
-        'top-right'
-      );
-
-      // Add transport markers
-      addTransportMarkers();
-      
-      setShowTokenInput(false);
-    } catch (error) {
-      console.error('Error initializing map:', error);
-    }
-  };
-
-  const addTransportMarkers = () => {
-    if (!map.current) return;
-
-    // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove());
-    markersRef.current = [];
-
-    transportOptions.forEach((transport) => {
-      const el = document.createElement('div');
-      el.style.width = '40px';
-      el.style.height = '40px';
-      el.style.borderRadius = '50%';
-      el.style.cursor = 'pointer';
-      el.style.display = 'flex';
-      el.style.alignItems = 'center';
-      el.style.justifyContent = 'center';
-      el.style.fontSize = '20px';
-      el.style.border = '3px solid white';
-      el.style.boxShadow = '0 2px 10px rgba(0,0,0,0.3)';
-      
-      // Color based on availability
-      switch (transport.availability) {
-        case 'available':
-          el.style.backgroundColor = '#10b981'; // green
-          break;
-        case 'limited':
-          el.style.backgroundColor = '#f59e0b'; // yellow
-          break;
-        case 'unavailable':
-          el.style.backgroundColor = '#ef4444'; // red
-          break;
-      }
-
-      // Transport type emoji
-      const getTypeEmoji = (type: string) => {
-        const icons: { [key: string]: string } = {
-          "Bus": "🚌",
-          "Metro": "🚇",
-          "Taxi": "🚕",
-          "Microbus": "🚐"
-        };
-        return icons[type] || "🚗";
-      };
-
-      el.innerHTML = getTypeEmoji(transport.type);
-
-      // Add selection highlight
-      if (selectedTransport === transport.id) {
-        el.style.border = '4px solid #3b82f6';
-        el.style.transform = 'scale(1.1)';
-      }
-
-      const marker = new mapboxgl.Marker(el)
-        .setLngLat(transport.coordinates)
-        .addTo(map.current!);
-
-      // Add click handler
-      el.addEventListener('click', () => {
-        onTransportSelect(transport.id);
-      });
-
-      // Add popup
-      const popup = new mapboxgl.Popup({ offset: 25 })
-        .setHTML(`
-          <div class="p-2">
-            <h3 class="font-bold text-sm">${transport.name}</h3>
-            <p class="text-xs text-gray-600">${transport.location}</p>
-            <p class="text-xs"><strong>Price:</strong> ${transport.price}</p>
-            <p class="text-xs"><strong>Time:</strong> ${transport.estimatedTime}</p>
-            <p class="text-xs"><strong>Rating:</strong> ⭐ ${transport.rating}</p>
-          </div>
-        `);
-
-      marker.setPopup(popup);
-      markersRef.current.push(marker);
-    });
-  };
-
-  useEffect(() => {
-    if (map.current && mapboxToken) {
-      addTransportMarkers();
-    }
-  }, [transportOptions, selectedTransport]);
-
-  useEffect(() => {
-    return () => {
-      markersRef.current.forEach(marker => marker.remove());
-      map.current?.remove();
+  const getTypeEmoji = (type: string) => {
+    const icons: { [key: string]: string } = {
+      "Bus": "🚌",
+      "Metro": "🚇",
+      "Taxi": "🚕",
+      "Microbus": "🚐"
     };
-  }, []);
+    return icons[type] || "🚗";
+  };
 
-  const handleTokenSubmit = () => {
-    if (mapboxToken.trim()) {
-      initializeMap();
+  const getAvailabilityColor = (availability: string) => {
+    switch (availability) {
+      case 'available':
+        return 'bg-green-500';
+      case 'limited':
+        return 'bg-yellow-500';
+      case 'unavailable':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
-  if (showTokenInput) {
-    return (
-      <Card className="w-full h-96 flex items-center justify-center">
-        <CardContent className="text-center space-y-4">
-          <h3 className="text-lg font-semibold">Enter Mapbox Token</h3>
-          <p className="text-sm text-muted-foreground">
-            Please enter your Mapbox public token to view the transport map.
-            Get yours at <a href="https://mapbox.com" target="_blank" rel="noopener noreferrer" className="text-primary underline">mapbox.com</a>
-          </p>
-          <div className="flex gap-2 max-w-md">
-            <Input
-              type="password"
-              placeholder="pk.your-mapbox-token..."
-              value={mapboxToken}
-              onChange={(e) => setMapboxToken(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && handleTokenSubmit()}
-            />
-            <Button onClick={handleTokenSubmit}>
-              Load Map
-            </Button>
-          </div>
-        </CardContent>
-      </Card>
-    );
-  }
+  // Convert coordinates to map position (rough approximation for Egypt map)
+  const coordinateToPosition = (coordinates: [number, number]) => {
+    const [lng, lat] = coordinates;
+    // Rough conversion for Egypt map bounds
+    // Egypt roughly: lng 25-35, lat 22-32
+    const x = ((lng - 25) / 10) * 100; // Convert to percentage
+    const y = ((32 - lat) / 10) * 100; // Inverted Y for map
+    return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
+  };
 
   return (
     <div className="relative w-full h-96 rounded-lg overflow-hidden shadow-elegant">
-      <div ref={mapContainer} className="absolute inset-0" />
-      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-        <h3 className="font-semibold text-sm mb-2">Transport Locations</h3>
+      <img 
+        src={egyptMap} 
+        alt="Egypt Map" 
+        className="w-full h-full object-cover"
+      />
+      
+      {/* Transport pins */}
+      {transportOptions.map((transport) => {
+        const position = coordinateToPosition(transport.coordinates);
+        return (
+          <div
+            key={transport.id}
+            className={`absolute w-10 h-10 rounded-full cursor-pointer flex items-center justify-center text-white text-lg border-2 border-white shadow-lg transition-all duration-200 hover:scale-110 ${
+              getAvailabilityColor(transport.availability)
+            } ${selectedTransport === transport.id ? 'ring-4 ring-blue-500 scale-110' : ''}`}
+            style={{
+              left: `${position.x}%`,
+              top: `${position.y}%`,
+              transform: 'translate(-50%, -50%)'
+            }}
+            onClick={() => onTransportSelect(transport.id)}
+            title={`${transport.name} - ${transport.location}`}
+          >
+            {getTypeEmoji(transport.type)}
+          </div>
+        );
+      })}
+
+      {/* Legend */}
+      <div className="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-lg p-3 shadow-lg dark:bg-gray-900/90">
+        <h3 className="font-semibold text-sm mb-2 text-gray-900 dark:text-white">Transport Locations</h3>
         <div className="space-y-1 text-xs">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500"></div>
-            <span>Available</span>
+            <span className="text-gray-700 dark:text-gray-300">Available</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
-            <span>Limited</span>
+            <span className="text-gray-700 dark:text-gray-300">Limited</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-red-500"></div>
-            <span>Unavailable</span>
+            <span className="text-gray-700 dark:text-gray-300">Unavailable</span>
           </div>
         </div>
       </div>

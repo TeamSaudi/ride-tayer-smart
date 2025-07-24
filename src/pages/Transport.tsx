@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Search, MapPin, Clock, Star, Navigation, Filter } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -49,7 +50,7 @@ const mockTransportOptions: TransportOption[] = [
   {
     id: "3",
     type: "Taxi",
-    name: "Uber/Careem",
+    name: "Taxi",
     location: "Current Location",
     distance: "0.1 km",
     rating: 4.3,
@@ -77,6 +78,7 @@ const Transport = () => {
   const [selectedType, setSelectedType] = useState("all");
   const [selectedTransport, setSelectedTransport] = useState<string | null>(null);
   const [transportOptions] = useState(mockTransportOptions);
+  const { toast } = useToast();
 
   const getAvailabilityColor = (availability: string) => {
     switch (availability) {
@@ -100,6 +102,13 @@ const Transport = () => {
   const filteredOptions = transportOptions.filter(option => 
     selectedType === "all" || option.type.toLowerCase() === selectedType.toLowerCase()
   );
+
+  const handleSelectRoute = (transportName: string) => {
+    toast({
+      title: "Route Selected",
+      description: `Route has been selected for ${transportName}`,
+    });
+  };
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
@@ -238,6 +247,7 @@ const Transport = () => {
                     size="sm" 
                     className="flex-1"
                     disabled={option.availability === "unavailable"}
+                    onClick={() => handleSelectRoute(option.name)}
                   >
                     Select Route
                   </Button>
