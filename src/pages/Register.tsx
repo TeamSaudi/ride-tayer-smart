@@ -9,7 +9,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import tayerLogo from "@/assets/tayer-logo.png";
+import { supabase } from "@/integrations/supabase/client";
+import tayerLogo from "@/assets/new-tayer-logo.png";
 
 type FormData = {
   firstName: string;
@@ -76,14 +77,42 @@ const Register = () => {
     
     setIsLoading(true);
     
-    // Simulate registration
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      const { data: authData, error } = await supabase.auth.signUp({
+        email: data.email,
+        password: data.password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/`,
+          data: {
+            first_name: data.firstName,
+            last_name: data.lastName,
+            phone: data.phone,
+          }
+        }
+      });
+
+      if (error) {
+        toast({
+          title: "Registration failed",
+          description: error.message,
+          variant: "destructive",
+        });
+        return;
+      }
+
       toast({
         title: "Welcome to Tayer!",
-        description: "Your account has been created successfully.",
+        description: "Your account has been created successfully. Please check your email to verify your account.",
       });
-    }, 2000);
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: "An unexpected error occurred. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (

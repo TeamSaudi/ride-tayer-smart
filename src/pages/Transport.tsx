@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Navbar from "@/components/Navbar";
 import TransportMap from "@/components/TransportMap";
+import ReportMissingTransportDialog from "@/components/ReportMissingTransportDialog";
 
 interface TransportOption {
   id: string;
@@ -94,7 +95,17 @@ const mockTransportOptions: TransportOption[] = [
   { id: "25", type: "Bus", name: "Alexandria Bus #51", location: "Stanley", distance: "1.5 km", rating: 4.1, price: "7 EGP", availability: "available", estimatedTime: "10 min", coordinates: [29.9000, 31.2100] },
   { id: "26", type: "Metro", name: "Metro Line 2", location: "Sadat Station", distance: "0.5 km", rating: 4.5, price: "5 EGP", availability: "available", estimatedTime: "3 min", coordinates: [31.2335, 30.0442] },
   { id: "27", type: "Taxi", name: "Taxi", location: "Zamalek", distance: "1.0 km", rating: 4.2, price: "35-50 EGP", availability: "available", estimatedTime: "8 min", coordinates: [31.2200, 30.0600] },
-  { id: "28", type: "Microbus", name: "Route 30", location: "Heliopolis", distance: "3.5 km", rating: 3.8, price: "9 EGP", availability: "available", estimatedTime: "20 min", coordinates: [31.3500, 30.0800] }
+  { id: "28", type: "Microbus", name: "Route 30", location: "Heliopolis", distance: "3.5 km", rating: 3.8, price: "9 EGP", availability: "available", estimatedTime: "20 min", coordinates: [31.3500, 30.0800] },
+  { id: "29", type: "Bus", name: "Upper Egypt Bus", location: "Aswan", distance: "15.0 km", rating: 4.1, price: "12 EGP", availability: "available", estimatedTime: "45 min", coordinates: [32.8998, 24.0889] },
+  { id: "30", type: "Bus", name: "Luxor Transit", location: "Luxor Temple", distance: "12.0 km", rating: 4.3, price: "10 EGP", availability: "available", estimatedTime: "35 min", coordinates: [32.6396, 25.6872] },
+  { id: "31", type: "Taxi", name: "Taxi", location: "Port Said", distance: "8.0 km", rating: 4.0, price: "25-40 EGP", availability: "available", estimatedTime: "20 min", coordinates: [32.3018, 31.2653] },
+  { id: "32", type: "Bus", name: "Sharm Bus Line", location: "Sharm El Sheikh", distance: "20.0 km", rating: 4.2, price: "15 EGP", availability: "limited", estimatedTime: "60 min", coordinates: [34.3302, 27.9158] },
+  { id: "33", type: "Metro", name: "Suez Metro", location: "Suez Central", distance: "6.0 km", rating: 4.4, price: "8 EGP", availability: "available", estimatedTime: "18 min", coordinates: [32.5498, 29.9668] },
+  { id: "34", type: "Microbus", name: "Delta Route", location: "Mansoura", distance: "4.5 km", rating: 3.9, price: "7 EGP", availability: "available", estimatedTime: "15 min", coordinates: [31.0409, 31.3785] },
+  { id: "35", type: "Bus", name: "Red Sea Express", location: "Hurghada", distance: "18.0 km", rating: 4.1, price: "18 EGP", availability: "available", estimatedTime: "50 min", coordinates: [33.8116, 27.2574] },
+  { id: "36", type: "Taxi", name: "Taxi", location: "Tanta", distance: "3.2 km", rating: 4.0, price: "20-35 EGP", availability: "available", estimatedTime: "12 min", coordinates: [31.0004, 30.7865] },
+  { id: "37", type: "Bus", name: "Sinai Transport", location: "Dahab", distance: "25.0 km", rating: 3.8, price: "20 EGP", availability: "limited", estimatedTime: "75 min", coordinates: [34.5197, 28.5069] },
+  { id: "38", type: "Microbus", name: "Canal Route", location: "Ismailia", distance: "5.5 km", rating: 4.0, price: "9 EGP", availability: "available", estimatedTime: "18 min", coordinates: [32.2735, 30.5965] }
 ];
 
 const Transport = () => {
@@ -133,6 +144,15 @@ const Transport = () => {
       title: "Route Selected",
       description: `Route has been selected for ${transportName}`,
     });
+  };
+
+  const handleReportSubmit = (data: { transportType: string; location: string; description: string }) => {
+    console.log('Report submitted:', data);
+    toast({
+      title: "Report Submitted",
+      description: "Thank you for your feedback! We'll review your report shortly.",
+    });
+    setShowReportDialog(false);
   };
 
   return (
@@ -298,6 +318,12 @@ const Transport = () => {
           </Card>
         </div>
       </div>
+
+      <ReportMissingTransportDialog
+        isOpen={showReportDialog}
+        onClose={() => setShowReportDialog(false)}
+        onSubmit={handleReportSubmit}
+      />
     </div>
   );
 };
