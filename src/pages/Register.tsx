@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useForm } from "react-hook-form";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { supabase } from "@/integrations/supabase/client";
-import tayerLogo from "@/assets/new-tayer-logo.png";
+import tayerLogo from "@/assets/tayer-new-logo.png";
 
 type FormData = {
   firstName: string;

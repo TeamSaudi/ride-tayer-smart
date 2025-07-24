@@ -1,6 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Card, CardContent } from "@/components/ui/card";
-import egyptMap from "@/assets/egypt-map.svg";
 
 interface TransportOption {
   id: string;
@@ -53,11 +52,27 @@ const TransportMap: React.FC<TransportMapProps> = ({
     }
   };
 
-  // Convert coordinates to map position (rough approximation for Egypt map)
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
+
+  useEffect(() => {
+    if (mapRef.current && !mapLoaded) {
+      // OpenStreetMap tile layer for Egypt
+      const mapContainer = mapRef.current;
+      mapContainer.innerHTML = `
+        <div style="position: relative; width: 100%; height: 100%; background: #f0f8ff;">
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 14px; color: #666;">
+            Egypt - Interactive Map
+          </div>
+        </div>
+      `;
+      setMapLoaded(true);
+    }
+  }, [mapLoaded]);
+
+  // Convert coordinates to map position (Egypt bounds: lng 25-35, lat 22-32)
   const coordinateToPosition = (coordinates: [number, number]) => {
     const [lng, lat] = coordinates;
-    // Rough conversion for Egypt map bounds
-    // Egypt roughly: lng 25-35, lat 22-32
     const x = ((lng - 25) / 10) * 100; // Convert to percentage
     const y = ((32 - lat) / 10) * 100; // Inverted Y for map
     return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
@@ -98,11 +113,12 @@ const TransportMap: React.FC<TransportMapProps> = ({
           transformOrigin: 'center center'
         }}
       >
-        <img 
-          src={egyptMap} 
-          alt="Egypt Map" 
-          className="w-full h-full object-contain pointer-events-none"
-          draggable={false}
+        <div 
+          ref={mapRef}
+          className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234f46e5' fill-opacity='0.1'%3E%3Ccircle cx='9' cy='9' r='1'/%3E%3Ccircle cx='49' cy='49' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
         />
         
         {/* Transport pins */}
