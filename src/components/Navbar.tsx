@@ -1,39 +1,21 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { Menu, X, MapPin, Users, Star, Brain, Car, Moon, Sun } from "lucide-react";
+import { Menu, X, MapPin, Users, Star, Brain, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
 import tayerNewLogo from "@/assets/tayer-new-logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDriverAuthorized, setIsDriverAuthorized] = useState(false);
   const location = useLocation();
   const { theme, setTheme } = useTheme();
-
-  useEffect(() => {
-    const checkDriverAuth = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      setIsDriverAuthorized(session?.user?.email === 'driver@tayer.com');
-    };
-
-    checkDriverAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      setIsDriverAuthorized(session?.user?.email === 'driver@tayer.com');
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
 
   const navigation = [
     { name: "Home", href: "/", icon: MapPin },
     { name: "Find Transport", href: "/transport", icon: MapPin },
     { name: "Reviews", href: "/reviews", icon: Star },
     { name: "AI Insights", href: "/ai-insights", icon: Brain },
-    ...(isDriverAuthorized ? [{ name: "Driver Dashboard", href: "/driver", icon: Car }] : []),
   ];
 
   return (
