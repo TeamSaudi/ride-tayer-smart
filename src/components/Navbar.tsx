@@ -3,7 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import { Menu, X, MapPin, Users, Star, Brain } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import tayerLogo from "@/assets/tayer-logo.png";
+import newTayerLogo from "@/assets/new-tayer-logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -22,7 +22,7 @@ const Navbar = () => {
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <Link to="/" className="flex items-center space-x-3">
-              <img src={tayerLogo} alt="Tayer" className="h-10 w-10" />
+              <img src={newTayerLogo} alt="Tayer" className="h-10 w-10" />
               <span className="text-2xl font-bold bg-gradient-primary bg-clip-text text-transparent">
                 TAYER
               </span>

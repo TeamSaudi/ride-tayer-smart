@@ -27,7 +27,7 @@ const mockTransportOptions: TransportOption[] = [
     location: "Tahrir Square",
     distance: "0.3 km",
     rating: 4.2,
-    price: "5 EGP",
+    price: "8 EGP",
     availability: "available",
     estimatedTime: "5 min"
   },
@@ -38,7 +38,7 @@ const mockTransportOptions: TransportOption[] = [
     location: "Sadat Station",
     distance: "0.5 km",
     rating: 4.5,
-    price: "3 EGP",
+    price: "5 EGP",
     availability: "available",
     estimatedTime: "3 min"
   },
@@ -49,7 +49,7 @@ const mockTransportOptions: TransportOption[] = [
     location: "Current Location",
     distance: "0.1 km",
     rating: 4.3,
-    price: "25-35 EGP",
+    price: "35-50 EGP",
     availability: "limited",
     estimatedTime: "2 min"
   },
@@ -60,7 +60,7 @@ const mockTransportOptions: TransportOption[] = [
     location: "Abdul Moneim Riad",
     distance: "0.7 km",
     rating: 3.8,
-    price: "7 EGP",
+    price: "10 EGP",
     availability: "available",
     estimatedTime: "8 min"
   }

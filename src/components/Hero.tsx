@@ -17,6 +17,26 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="space-y-8">
+          {/* Stats */}
+          <div className="flex justify-center mb-8">
+            <div className="bg-background/20 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary">500+</div>
+                  <div className="text-muted-foreground">Transportation Options</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-secondary">15+</div>
+                  <div className="text-muted-foreground">Cities Covered</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-success">10K+</div>
+                  <div className="text-muted-foreground">Happy Users</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-foreground">
               Your Journey,{" "}
@@ -59,21 +79,6 @@ const Hero = () => {
             </Button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-primary">500+</div>
-              <div className="text-muted-foreground">Transportation Options</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-secondary">15+</div>
-              <div className="text-muted-foreground">Cities Covered</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-success">10K+</div>
-              <div className="text-muted-foreground">Happy Users</div>
-            </div>
-          </div>
         </div>
       </div>
 
