@@ -70,7 +70,31 @@ const mockTransportOptions: TransportOption[] = [
     availability: "available",
     estimatedTime: "8 min",
     coordinates: [31.2340, 30.0460] // Abdul Moneim Riad
-  }
+  },
+  { id: "5", type: "Bus", name: "Giza Bus #101", location: "Giza Square", distance: "1.2 km", rating: 4.0, price: "7 EGP", availability: "available", estimatedTime: "10 min", coordinates: [31.2001, 30.0131] },
+  { id: "6", type: "Metro", name: "Alexandria Metro Line 2", location: "Smouha Station", distance: "2.5 km", rating: 4.3, price: "6 EGP", availability: "limited", estimatedTime: "15 min", coordinates: [29.9092, 31.2156] },
+  { id: "7", type: "Taxi", name: "Taxi", location: "Central Cairo", distance: "0.8 km", rating: 4.1, price: "30-45 EGP", availability: "available", estimatedTime: "5 min", coordinates: [31.2357, 30.0444] },
+  { id: "8", type: "Microbus", name: "Route 5", location: "Downtown", distance: "1.0 km", rating: 3.9, price: "9 EGP", availability: "available", estimatedTime: "12 min", coordinates: [31.2400, 30.0500] },
+  { id: "9", type: "Bus", name: "Cairo Bus #200", location: "Nasr City", distance: "3.0 km", rating: 4.2, price: "8 EGP", availability: "available", estimatedTime: "20 min", coordinates: [31.3300, 30.0500] },
+  { id: "10", type: "Metro", name: "Metro Line 3", location: "Heliopolis Station", distance: "4.0 km", rating: 4.4, price: "7 EGP", availability: "available", estimatedTime: "25 min", coordinates: [31.3500, 30.0800] },
+  { id: "11", type: "Taxi", name: "Taxi", location: "Maadi", distance: "5.0 km", rating: 4.0, price: "40-60 EGP", availability: "limited", estimatedTime: "30 min", coordinates: [31.2500, 29.9700] },
+  { id: "12", type: "Microbus", name: "Route 10", location: "Dokki", distance: "2.0 km", rating: 3.7, price: "8 EGP", availability: "available", estimatedTime: "15 min", coordinates: [31.2100, 30.0400] },
+  { id: "13", type: "Bus", name: "Alexandria Bus #50", location: "Stanley", distance: "1.5 km", rating: 4.1, price: "7 EGP", availability: "available", estimatedTime: "10 min", coordinates: [29.9000, 31.2100] },
+  { id: "14", type: "Metro", name: "Metro Line 1", location: "Sadat Station", distance: "0.5 km", rating: 4.5, price: "5 EGP", availability: "available", estimatedTime: "3 min", coordinates: [31.2335, 30.0442] },
+  { id: "15", type: "Taxi", name: "Taxi", location: "Zamalek", distance: "1.0 km", rating: 4.2, price: "35-50 EGP", availability: "available", estimatedTime: "8 min", coordinates: [31.2200, 30.0600] },
+  { id: "16", type: "Microbus", name: "Route 15", location: "Heliopolis", distance: "3.5 km", rating: 3.8, price: "9 EGP", availability: "available", estimatedTime: "20 min", coordinates: [31.3500, 30.0800] },
+  { id: "17", type: "Bus", name: "Giza Bus #102", location: "Giza Square", distance: "1.2 km", rating: 4.0, price: "7 EGP", availability: "available", estimatedTime: "10 min", coordinates: [31.2001, 30.0131] },
+  { id: "18", type: "Metro", name: "Alexandria Metro Line 3", location: "Smouha Station", distance: "2.5 km", rating: 4.3, price: "6 EGP", availability: "limited", estimatedTime: "15 min", coordinates: [29.9092, 31.2156] },
+  { id: "19", type: "Taxi", name: "Taxi", location: "Central Cairo", distance: "0.8 km", rating: 4.1, price: "30-45 EGP", availability: "available", estimatedTime: "5 min", coordinates: [31.2357, 30.0444] },
+  { id: "20", type: "Microbus", name: "Route 20", location: "Downtown", distance: "1.0 km", rating: 3.9, price: "9 EGP", availability: "available", estimatedTime: "12 min", coordinates: [31.2400, 30.0500] },
+  { id: "21", type: "Bus", name: "Cairo Bus #201", location: "Nasr City", distance: "3.0 km", rating: 4.2, price: "8 EGP", availability: "available", estimatedTime: "20 min", coordinates: [31.3300, 30.0500] },
+  { id: "22", type: "Metro", name: "Metro Line 4", location: "Heliopolis Station", distance: "4.0 km", rating: 4.4, price: "7 EGP", availability: "available", estimatedTime: "25 min", coordinates: [31.3500, 30.0800] },
+  { id: "23", type: "Taxi", name: "Taxi", location: "Maadi", distance: "5.0 km", rating: 4.0, price: "40-60 EGP", availability: "limited", estimatedTime: "30 min", coordinates: [31.2500, 29.9700] },
+  { id: "24", type: "Microbus", name: "Route 25", location: "Dokki", distance: "2.0 km", rating: 3.7, price: "8 EGP", availability: "available", estimatedTime: "15 min", coordinates: [31.2100, 30.0400] },
+  { id: "25", type: "Bus", name: "Alexandria Bus #51", location: "Stanley", distance: "1.5 km", rating: 4.1, price: "7 EGP", availability: "available", estimatedTime: "10 min", coordinates: [29.9000, 31.2100] },
+  { id: "26", type: "Metro", name: "Metro Line 2", location: "Sadat Station", distance: "0.5 km", rating: 4.5, price: "5 EGP", availability: "available", estimatedTime: "3 min", coordinates: [31.2335, 30.0442] },
+  { id: "27", type: "Taxi", name: "Taxi", location: "Zamalek", distance: "1.0 km", rating: 4.2, price: "35-50 EGP", availability: "available", estimatedTime: "8 min", coordinates: [31.2200, 30.0600] },
+  { id: "28", type: "Microbus", name: "Route 30", location: "Heliopolis", distance: "3.5 km", rating: 3.8, price: "9 EGP", availability: "available", estimatedTime: "20 min", coordinates: [31.3500, 30.0800] }
 ];
 
 const Transport = () => {
@@ -78,6 +102,7 @@ const Transport = () => {
   const [selectedType, setSelectedType] = useState("all");
   const [selectedTransport, setSelectedTransport] = useState<string | null>(null);
   const [transportOptions] = useState(mockTransportOptions);
+  const [showReportDialog, setShowReportDialog] = useState(false);
   const { toast } = useToast();
 
   const getAvailabilityColor = (availability: string) => {
@@ -111,7 +136,7 @@ const Transport = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background dark:bg-background-dark">
       <Navbar />
       
       <div className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
@@ -266,7 +291,7 @@ const Transport = () => {
             <CardContent className="p-8">
               <h3 className="text-2xl font-bold mb-2">Not finding what you need?</h3>
               <p className="mb-4 opacity-90">Help us improve by reporting missing transportation options in your area</p>
-              <Button variant="secondary" size="lg">
+              <Button variant="secondary" size="lg" onClick={() => setShowReportDialog(true)}>
                 Report Missing Transport
               </Button>
             </CardContent>

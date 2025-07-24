@@ -123,7 +123,7 @@ const Reviews = () => {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background dark:bg-background-dark">
       <Navbar />
       
       <div className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

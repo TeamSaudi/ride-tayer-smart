@@ -52,7 +52,31 @@ const mockDriverContacts: DriverContact[] = [
   { name: "محمد حسين", phone: "01123456789", area: "Cairo" },
   { name: "أحمد شريف", phone: "01098765432", area: "Cairo" },
   { name: "مصطفى السيد", phone: "01234567891", area: "Alexandria" },
-  { name: "محمود عبدالله", phone: "01022334455", area: "Alexandria" }
+  { name: "محمود عبدالله", phone: "01022334455", area: "Alexandria" },
+  { name: "سعيد محمود", phone: "01111222333", area: "Giza" },
+  { name: "هشام علي", phone: "01033445566", area: "Giza" },
+  { name: "علي حسن", phone: "01234567890", area: "Cairo" },
+  { name: "محمود عبدالعزيز", phone: "01122334455", area: "Alexandria" },
+  { name: "أحمد عبد الله", phone: "01055667788", area: "Cairo" },
+  { name: "محمد عبد الرحمن", phone: "01223344556", area: "Giza" },
+  { name: "خالد مصطفى", phone: "01199887766", area: "Alexandria" },
+  { name: "ياسر أحمد", phone: "01011223344", area: "Cairo" },
+  { name: "محمود سامي", phone: "01233445566", area: "Giza" },
+  { name: "أحمد سعيد", phone: "01122336655", area: "Alexandria" },
+  { name: "عمر حسن", phone: "01044556677", area: "Cairo" },
+  { name: "سامي عبد الله", phone: "01222334455", area: "Giza" },
+  { name: "محمد علي", phone: "01133445566", area: "Alexandria" },
+  { name: "أحمد محمود", phone: "01055667788", area: "Cairo" },
+  { name: "خالد سامي", phone: "01223344556", area: "Giza" },
+  { name: "ياسر سعيد", phone: "01199887766", area: "Alexandria" },
+  { name: "محمود عمر", phone: "01011223344", area: "Cairo" },
+  { name: "أحمد سامي", phone: "01233445566", area: "Giza" },
+  { name: "عمر سعيد", phone: "01122336655", area: "Alexandria" },
+  { name: "سامي محمود", phone: "01044556677", area: "Cairo" },
+  { name: "محمد سامي", phone: "01222334455", area: "Giza" },
+  { name: "أحمد عمر", phone: "01133445566", area: "Alexandria" },
+  { name: "خالد سعيد", phone: "01055667788", area: "Cairo" },
+  { name: "ياسر محمود", phone: "01223344556", area: "Giza" }
 ];
 
 const AIInsights = () => {
@@ -83,7 +107,7 @@ const AIInsights = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="min-h-screen bg-background dark:bg-background-dark">
       <Navbar />
       
       <div className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
