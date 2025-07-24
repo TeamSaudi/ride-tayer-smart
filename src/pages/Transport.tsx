@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import Navbar from "@/components/Navbar";
+import TransportMap from "@/components/TransportMap";
 
 interface TransportOption {
   id: string;
@@ -17,6 +18,7 @@ interface TransportOption {
   price: string;
   availability: "available" | "limited" | "unavailable";
   estimatedTime: string;
+  coordinates: [number, number]; // [lng, lat]
 }
 
 const mockTransportOptions: TransportOption[] = [
@@ -29,7 +31,8 @@ const mockTransportOptions: TransportOption[] = [
     rating: 4.2,
     price: "8 EGP",
     availability: "available",
-    estimatedTime: "5 min"
+    estimatedTime: "5 min",
+    coordinates: [31.2357, 30.0444] // Tahrir Square
   },
   {
     id: "2",
@@ -40,7 +43,8 @@ const mockTransportOptions: TransportOption[] = [
     rating: 4.5,
     price: "5 EGP",
     availability: "available",
-    estimatedTime: "3 min"
+    estimatedTime: "3 min",
+    coordinates: [31.2335, 30.0442] // Sadat Metro Station
   },
   {
     id: "3",
@@ -51,7 +55,8 @@ const mockTransportOptions: TransportOption[] = [
     rating: 4.3,
     price: "35-50 EGP",
     availability: "limited",
-    estimatedTime: "2 min"
+    estimatedTime: "2 min",
+    coordinates: [31.2370, 30.0450] // Near current location
   },
   {
     id: "4",
@@ -62,13 +67,15 @@ const mockTransportOptions: TransportOption[] = [
     rating: 3.8,
     price: "10 EGP",
     availability: "available",
-    estimatedTime: "8 min"
+    estimatedTime: "8 min",
+    coordinates: [31.2340, 30.0460] // Abdul Moneim Riad
   }
 ];
 
 const Transport = () => {
   const [searchLocation, setSearchLocation] = useState("");
   const [selectedType, setSelectedType] = useState("all");
+  const [selectedTransport, setSelectedTransport] = useState<string | null>(null);
   const [transportOptions] = useState(mockTransportOptions);
 
   const getAvailabilityColor = (availability: string) => {
@@ -161,10 +168,33 @@ const Transport = () => {
           </CardContent>
         </Card>
 
+        {/* Transport Map */}
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <MapPin className="h-5 w-5" />
+              Transport Locations
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <TransportMap
+              transportOptions={filteredOptions}
+              selectedTransport={selectedTransport}
+              onTransportSelect={setSelectedTransport}
+            />
+          </CardContent>
+        </Card>
+
         {/* Transportation Options */}
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredOptions.map((option) => (
-            <Card key={option.id} className="hover:shadow-elegant transition-all duration-300 hover:scale-[1.02]">
+            <Card 
+              key={option.id} 
+              className={`hover:shadow-elegant transition-all duration-300 hover:scale-[1.02] cursor-pointer ${
+                selectedTransport === option.id ? 'ring-2 ring-primary shadow-glow' : ''
+              }`}
+              onClick={() => setSelectedTransport(option.id)}
+            >
               <CardHeader className="pb-3">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center space-x-3">
