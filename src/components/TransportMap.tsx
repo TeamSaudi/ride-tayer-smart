@@ -1,7 +1,5 @@
-import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import React, { useState, useEffect, useRef } from 'react';
+import { Card, CardContent } from "@/components/ui/card";
 
 interface TransportOption {
   id: string;
@@ -22,16 +20,15 @@ interface TransportMapProps {
   onTransportSelect: (transportId: string) => void;
 }
 
-// Fix leaflet default icon issue
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
-  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
-  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
-});
-
-// Create custom icons for different transport types and availability
-const createCustomIcon = (type: string, availability: string, isSelected: boolean) => {
+const TransportMap: React.FC<TransportMapProps> = ({
+  transportOptions,
+  selectedTransport,
+  onTransportSelect
+}) => {
+  const [zoom, setZoom] = useState(1);
+  const [pan, setPan] = useState({ x: 0, y: 0 });
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const getTypeEmoji = (type: string) => {
     const icons: { [key: string]: string } = {
       "Bus": "🚌",
@@ -44,97 +41,140 @@ const createCustomIcon = (type: string, availability: string, isSelected: boolea
 
   const getAvailabilityColor = (availability: string) => {
     switch (availability) {
-      case 'available': return '#22c55e';
-      case 'limited': return '#eab308';
-      case 'unavailable': return '#ef4444';
-      default: return '#6b7280';
+      case 'available':
+        return 'bg-green-500';
+      case 'limited':
+        return 'bg-yellow-500';
+      case 'unavailable':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-500';
     }
   };
 
-  const iconHtml = `
-    <div style="
-      width: 32px;
-      height: 32px;
-      background-color: ${getAvailabilityColor(availability)};
-      border: ${isSelected ? '3px solid #3b82f6' : '2px solid white'};
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-      transform: ${isSelected ? 'scale(1.2)' : 'scale(1)'};
-      transition: all 0.2s;
-    ">
-      ${getTypeEmoji(type)}
-    </div>
-  `;
+  const mapRef = useRef<HTMLDivElement>(null);
+  const [mapLoaded, setMapLoaded] = useState(false);
 
-  return L.divIcon({
-    html: iconHtml,
-    className: 'custom-div-icon',
-    iconSize: [32, 32],
-    iconAnchor: [16, 16],
-    popupAnchor: [0, -16]
-  });
-};
+  useEffect(() => {
+    if (mapRef.current && !mapLoaded) {
+      // OpenStreetMap tile layer for Egypt
+      const mapContainer = mapRef.current;
+      mapContainer.innerHTML = `
+        <div style="position: relative; width: 100%; height: 100%; background: #f0f8ff;">
+          <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 14px; color: #666;">
+            Egypt - Interactive Map
+          </div>
+        </div>
+      `;
+      setMapLoaded(true);
+    }
+  }, [mapLoaded]);
 
-const TransportMap: React.FC<TransportMapProps> = ({
-  transportOptions,
-  selectedTransport,
-  onTransportSelect
-}) => {
-  // Egypt center coordinates (Cairo)
-  const egyptCenter: [number, number] = [30.0444, 31.2357]; // [lat, lng]
-  
+  // Convert coordinates to map position (Egypt bounds: lng 25-35, lat 22-32)
+  const coordinateToPosition = (coordinates: [number, number]) => {
+    const [lng, lat] = coordinates;
+    const x = ((lng - 25) / 10) * 100; // Convert to percentage
+    const y = ((32 - lat) / 10) * 100; // Inverted Y for map
+    return { x: Math.max(0, Math.min(100, x)), y: Math.max(0, Math.min(100, y)) };
+  };
+
+  const handleMouseDown = (e: React.MouseEvent) => {
+    setIsDragging(true);
+    setDragStart({ x: e.clientX - pan.x, y: e.clientY - pan.y });
+  };
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (isDragging) {
+      setPan({ x: e.clientX - dragStart.x, y: e.clientY - dragStart.y });
+    }
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleWheel = (e: React.WheelEvent) => {
+    e.preventDefault();
+    const newZoom = Math.max(0.5, Math.min(3, zoom + (e.deltaY > 0 ? -0.1 : 0.1)));
+    setZoom(newZoom);
+  };
+
   return (
-    <div className="relative w-full h-96 rounded-lg overflow-hidden shadow-elegant">
-      <MapContainer
-        center={egyptCenter}
-        zoom={6}
-        style={{ height: "100%", width: "100%" }}
-        scrollWheelZoom={true}
-        className="rounded-lg"
+    <div className="relative w-full h-96 rounded-lg overflow-hidden shadow-elegant bg-muted">
+      <div
+        className="relative w-full h-full cursor-grab active:cursor-grabbing"
+        onMouseDown={handleMouseDown}
+        onMouseMove={handleMouseMove}
+        onMouseUp={handleMouseUp}
+        onMouseLeave={handleMouseUp}
+        onWheel={handleWheel}
+        style={{
+          transform: `scale(${zoom}) translate(${pan.x / zoom}px, ${pan.y / zoom}px)`,
+          transformOrigin: 'center center'
+        }}
       >
-        <TileLayer
-          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        <div 
+          ref={mapRef}
+          className="w-full h-full bg-gradient-to-br from-blue-50 to-green-50 dark:from-blue-900/20 dark:to-green-900/20"
+          style={{
+            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%234f46e5' fill-opacity='0.1'%3E%3Ccircle cx='9' cy='9' r='1'/%3E%3Ccircle cx='49' cy='49' r='1'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+          }}
         />
+        
+        {/* Transport pins */}
+        {transportOptions.map((transport) => {
+          const position = coordinateToPosition(transport.coordinates);
+          return (
+            <div
+              key={transport.id}
+              className={`absolute w-8 h-8 rounded-full cursor-pointer flex items-center justify-center text-white text-sm border-2 border-white shadow-lg transition-all duration-200 hover:scale-125 ${
+                getAvailabilityColor(transport.availability)
+              } ${selectedTransport === transport.id ? 'ring-4 ring-primary scale-125' : ''}`}
+              style={{
+                left: `${position.x}%`,
+                top: `${position.y}%`,
+                transform: 'translate(-50%, -50%)'
+              }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onTransportSelect(transport.id);
+              }}
+              title={`${transport.name} - ${transport.location}`}
+            >
+              {getTypeEmoji(transport.type)}
+            </div>
+          );
+        })}
+      </div>
 
-        {transportOptions.map((option) => (
-          <Marker
-            key={option.id}
-            position={[option.coordinates[1], option.coordinates[0]]} // [lat, lng]
-            icon={createCustomIcon(option.type, option.availability, selectedTransport === option.id)}
-            eventHandlers={{
-              click: () => onTransportSelect(option.id),
-            }}
-          >
-            <Popup>
-              <div className="text-center">
-                <h3 className="font-bold text-lg mb-1">{option.name}</h3>
-                <p className="text-sm text-gray-600 mb-2">{option.location}</p>
-                <div className="grid grid-cols-2 gap-2 text-xs">
-                  <div><strong>Distance:</strong> {option.distance}</div>
-                  <div><strong>Time:</strong> {option.estimatedTime}</div>
-                  <div><strong>Price:</strong> {option.price}</div>
-                  <div><strong>Rating:</strong> ⭐ {option.rating}</div>
-                </div>
-                <div className={`mt-2 px-2 py-1 rounded text-white text-xs ${
-                  option.availability === 'available' ? 'bg-green-500' :
-                  option.availability === 'limited' ? 'bg-yellow-500' : 'bg-red-500'
-                }`}>
-                  {option.availability.toUpperCase()}
-                </div>
-              </div>
-            </Popup>
-          </Marker>
-        ))}
-      </MapContainer>
-      
+      {/* Controls */}
+      <div className="absolute top-4 right-4 flex flex-col gap-2">
+        <button
+          onClick={() => setZoom(Math.min(3, zoom + 0.2))}
+          className="w-8 h-8 bg-background/90 backdrop-blur-sm rounded border shadow-lg flex items-center justify-center hover:bg-background text-foreground"
+        >
+          +
+        </button>
+        <button
+          onClick={() => setZoom(Math.max(0.5, zoom - 0.2))}
+          className="w-8 h-8 bg-background/90 backdrop-blur-sm rounded border shadow-lg flex items-center justify-center hover:bg-background text-foreground"
+        >
+          −
+        </button>
+        <button
+          onClick={() => {
+            setZoom(1);
+            setPan({ x: 0, y: 0 });
+          }}
+          className="w-8 h-8 bg-background/90 backdrop-blur-sm rounded border shadow-lg flex items-center justify-center hover:bg-background text-foreground text-xs"
+        >
+          ⌂
+        </button>
+      </div>
+
       {/* Legend */}
       <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
-        <h3 className="font-semibold text-sm mb-2 text-foreground">Transport Status</h3>
+        <h3 className="font-semibold text-sm mb-2 text-foreground">Transport Locations</h3>
         <div className="space-y-1 text-xs">
           <div className="flex items-center gap-2">
             <div className="w-3 h-3 rounded-full bg-green-500"></div>

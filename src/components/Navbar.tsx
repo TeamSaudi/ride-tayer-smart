@@ -1,102 +1,21 @@
-import { useState, useEffect } from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { Menu, X, MapPin, Users, Star, Brain, Car, Moon, Sun, LogOut } from "lucide-react";
+import { useState } from "react";
+import { Link, useLocation } from "react-router-dom";
+import { Menu, X, MapPin, Users, Star, Brain, Moon, Sun } from "lucide-react";
 import { useTheme } from "@/providers/theme-provider";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { supabase } from "@/integrations/supabase/client";
-import { User, Session } from '@supabase/supabase-js';
-import { useToast } from "@/hooks/use-toast";
 import tayerNewLogo from "@/assets/tayer-new-logo.png";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isDriverAuthorized, setIsDriverAuthorized] = useState(false);
-  const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [userProfile, setUserProfile] = useState<{ first_name?: string } | null>(null);
   const location = useLocation();
-  const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setSession(session);
-        setUser(session?.user ?? null);
-        setIsDriverAuthorized(session?.user?.email === 'driver@tayer.com');
-        
-        // Fetch user profile if logged in
-        if (session?.user) {
-          try {
-            const { data: profile } = await supabase
-              .from('profiles')
-              .select('first_name')
-              .eq('user_id', session.user.id)
-              .single();
-            setUserProfile(profile);
-          } catch (error) {
-            console.log('Could not fetch profile:', error);
-            setUserProfile(null);
-          }
-        } else {
-          setUserProfile(null);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      console.log('Initial session:', session?.user?.email);
-      setSession(session);
-      setUser(session?.user ?? null);
-      setIsDriverAuthorized(session?.user?.email === 'driver@tayer.com');
-      
-      // Fetch profile for existing session
-      if (session?.user) {
-        try {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('first_name')
-            .eq('user_id', session.user.id)
-            .single();
-          setUserProfile(profile);
-        } catch (error) {
-          console.log('Could not fetch initial profile:', error);
-          setUserProfile(null);
-        }
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleLogout = async () => {
-    try {
-      await supabase.auth.signOut();
-      toast({
-        title: "Signed out",
-        description: "You have been successfully signed out.",
-      });
-      navigate('/');
-    } catch (error) {
-      toast({
-        title: "Error signing out",
-        description: "There was an error signing out. Please try again.",
-        variant: "destructive",
-      });
-    }
-  };
 
   const navigation = [
     { name: "Home", href: "/", icon: MapPin },
     { name: "Find Transport", href: "/transport", icon: MapPin },
     { name: "Reviews", href: "/reviews", icon: Star },
     { name: "AI Insights", href: "/ai-insights", icon: Brain },
-    ...(isDriverAuthorized ? [{ name: "Driver Dashboard", href: "/driver", icon: Car }] : []),
   ];
 
   return (
@@ -147,27 +66,12 @@ const Navbar = () => {
               <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
               <span className="sr-only">Toggle theme</span>
             </Button>
-            
-            {user ? (
-              <div className="flex items-center space-x-3">
-                <span className="text-sm font-medium text-foreground">
-                  Welcome, {userProfile?.first_name || user.email?.split('@')[0] || 'User'}!
-                </span>
-                <Button variant="outline" size="sm" onClick={handleLogout}>
-                  <LogOut className="h-4 w-4 mr-2" />
-                  Sign Out
-                </Button>
-              </div>
-            ) : (
-              <>
-                <Button variant="ghost" asChild>
-                  <Link to="/login">Sign In</Link>
-                </Button>
-                <Button variant="hero" asChild>
-                  <Link to="/register">Get Started</Link>
-                </Button>
-              </>
-            )}
+            <Button variant="ghost" asChild>
+              <Link to="/login">Sign In</Link>
+            </Button>
+            <Button variant="hero" asChild>
+              <Link to="/register">Get Started</Link>
+            </Button>
           </div>
 
           {/* Mobile menu button */}
@@ -215,30 +119,16 @@ const Navbar = () => {
               );
             })}
             <div className="flex flex-col space-y-2 pt-4 mt-4 border-t border-border">
-              {user ? (
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-foreground px-3">
-                    Welcome, {userProfile?.first_name || user.email?.split('@')[0] || 'User'}!
-                  </p>
-                  <Button variant="outline" onClick={handleLogout} className="w-full">
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Sign Out
-                  </Button>
-                </div>
-              ) : (
-                <>
-                  <Button variant="ghost" asChild>
-                    <Link to="/login" onClick={() => setIsOpen(false)}>
-                      Sign In
-                    </Link>
-                  </Button>
-                  <Button variant="hero" asChild>
-                    <Link to="/register" onClick={() => setIsOpen(false)}>
-                      Get Started
-                    </Link>
-                  </Button>
-                </>
-              )}
+              <Button variant="ghost" asChild>
+                <Link to="/login" onClick={() => setIsOpen(false)}>
+                  Sign In
+                </Link>
+              </Button>
+              <Button variant="hero" asChild>
+                <Link to="/register" onClick={() => setIsOpen(false)}>
+                  Get Started
+                </Link>
+              </Button>
             </div>
           </div>
         </div>
