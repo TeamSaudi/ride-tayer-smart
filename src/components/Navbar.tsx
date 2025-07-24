@@ -14,7 +14,6 @@ const Navbar = () => {
     { name: "Find Transport", href: "/transport", icon: MapPin },
     { name: "Reviews", href: "/reviews", icon: Star },
     { name: "AI Insights", href: "/ai-insights", icon: Brain },
-    { name: "Community", href: "/community", icon: Users },
   ];
 
   return (

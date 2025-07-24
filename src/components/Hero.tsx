@@ -20,7 +20,7 @@ const Hero = () => {
           <div className="space-y-4">
             <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-foreground">
               Your Journey,{" "}
-              <span className="bg-gradient-hero bg-clip-text text-transparent">
+              <span className="text-orange-500">
                 Our Mission
               </span>
             </h1>
@@ -77,12 +77,6 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Decorative Elements */}
-      <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 animate-bounce">
-        <div className="w-6 h-10 border-2 border-primary rounded-full flex justify-center">
-          <div className="w-1 h-3 bg-primary rounded-full mt-2 animate-pulse-glow"></div>
-        </div>
-      </div>
     </div>
   );
 };

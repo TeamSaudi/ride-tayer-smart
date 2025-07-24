@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { Eye, EyeOff, Mail, Lock, User, Phone } from "lucide-react";
+import { Eye, EyeOff, Mail, Lock, User, Phone, Shield, ShieldCheck, ShieldX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -26,6 +26,22 @@ const Register = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  const getPasswordStrength = (password: string) => {
+    if (!password) return { level: 0, text: "", color: "" };
+    
+    let score = 0;
+    if (password.length >= 8) score++;
+    if (/[a-z]/.test(password)) score++;
+    if (/[A-Z]/.test(password)) score++;
+    if (/[0-9]/.test(password)) score++;
+    if (/[^A-Za-z0-9]/.test(password)) score++;
+    
+    if (score <= 2) return { level: 1, text: "Weak", color: "text-destructive", icon: ShieldX };
+    if (score === 3) return { level: 2, text: "OK", color: "text-warning", icon: Shield };
+    if (score === 4) return { level: 3, text: "Good", color: "text-success", icon: ShieldCheck };
+    return { level: 4, text: "Strong", color: "text-success", icon: ShieldCheck };
+  };
 
   const form = useForm<FormData>({
     defaultValues: {
@@ -200,21 +216,39 @@ const Register = () => {
                   <FormItem>
                     <FormLabel>Password</FormLabel>
                     <FormControl>
-                      <div className="relative">
-                        <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-                        <Input
-                          {...field}
-                          type={showPassword ? "text" : "password"}
-                          placeholder="Create a password"
-                          className="pl-10 pr-10"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowPassword(!showPassword)}
-                          className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
-                        >
-                          {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                        </button>
+                      <div className="space-y-2">
+                        <div className="relative">
+                          <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                          <Input
+                            {...field}
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Create a password"
+                            className="pl-10 pr-10"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword(!showPassword)}
+                            className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          >
+                            {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                          </button>
+                        </div>
+                        {field.value && (
+                          <div className="flex items-center space-x-2 text-sm">
+                            {(() => {
+                              const strength = getPasswordStrength(field.value);
+                              const Icon = strength.icon;
+                              return (
+                                <>
+                                  <Icon className={`h-4 w-4 ${strength.color}`} />
+                                  <span className={strength.color}>
+                                    Password strength: {strength.text}
+                                  </span>
+                                </>
+                              );
+                            })()}
+                          </div>
+                        )}
                       </div>
                     </FormControl>
                     <FormMessage />
