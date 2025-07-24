@@ -10,6 +10,7 @@ import Register from "./pages/Register";
 import Transport from "./pages/Transport";
 import Reviews from "./pages/Reviews";
 import AIInsights from "./pages/AIInsights";
+import Driver from "./pages/Driver";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/transport" element={<Transport />} />
           <Route path="/reviews" element={<Reviews />} />
           <Route path="/ai-insights" element={<AIInsights />} />
+          <Route path="/driver" element={<Driver />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
