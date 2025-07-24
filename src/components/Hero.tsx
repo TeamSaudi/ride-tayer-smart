@@ -17,37 +17,37 @@ const Hero = () => {
       {/* Content */}
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
         <div className="space-y-8">
-          {/* Stats */}
-          <div className="flex justify-center mb-8">
-            <div className="bg-background/20 backdrop-blur-md rounded-2xl p-6 border border-white/10">
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-primary">500+</div>
-                  <div className="text-muted-foreground">Transportation Options</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-secondary">15+</div>
-                  <div className="text-muted-foreground">Cities Covered</div>
-                </div>
-                <div className="text-center">
-                  <div className="text-3xl font-bold text-success">10K+</div>
-                  <div className="text-muted-foreground">Happy Users</div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <div className="space-y-4">
-            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-foreground">
+            <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold text-white">
               Your Journey,{" "}
               <span className="text-orange-500">
                 Our Mission
               </span>
             </h1>
-            <p className="text-xl sm:text-2xl text-foreground max-w-3xl mx-auto leading-relaxed font-bold">
+            <p className="text-xl sm:text-2xl text-white max-w-3xl mx-auto leading-relaxed font-bold">
               Discover the best transportation options near you. From buses to bikes, 
               we help you move smarter across Egypt.
             </p>
+          </div>
+
+          {/* Stats */}
+          <div className="flex justify-center">
+            <div className="bg-background/20 backdrop-blur-md rounded-2xl p-6 border border-white/10">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-primary">500+</div>
+                  <div className="text-white/80">Transportation Options</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-secondary">15+</div>
+                  <div className="text-white/80">Cities Covered</div>
+                </div>
+                <div className="text-center">
+                  <div className="text-3xl font-bold text-success">10K+</div>
+                  <div className="text-white/80">Happy Users</div>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Feature Pills */}
