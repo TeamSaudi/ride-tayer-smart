@@ -1,6 +1,7 @@
-import React, { useEffect, useRef } from 'react';
-import mapboxgl from 'mapbox-gl';
-import 'mapbox-gl/dist/mapbox-gl.css';
+import React, { useEffect } from 'react';
+import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import L from 'leaflet';
+import 'leaflet/dist/leaflet.css';
 
 interface TransportOption {
   id: string;
@@ -21,19 +22,20 @@ interface TransportMapProps {
   onTransportSelect: (transportId: string) => void;
 }
 
-const TransportMap: React.FC<TransportMapProps> = ({
-  transportOptions,
-  selectedTransport,
-  onTransportSelect
-}) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const map = useRef<mapboxgl.Map | null>(null);
-  const markers = useRef<mapboxgl.Marker[]>([]);
+// Fix leaflet default icon issue
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+  iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+  shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+});
 
+// Create custom icons for different transport types and availability
+const createCustomIcon = (type: string, availability: string, isSelected: boolean) => {
   const getTypeEmoji = (type: string) => {
     const icons: { [key: string]: string } = {
       "Bus": "🚌",
-      "Metro": "🚇", 
+      "Metro": "🚇",
       "Taxi": "🚕",
       "Microbus": "🚐"
     };
@@ -42,118 +44,93 @@ const TransportMap: React.FC<TransportMapProps> = ({
 
   const getAvailabilityColor = (availability: string) => {
     switch (availability) {
-      case 'available':
-        return '#22c55e';
-      case 'limited':
-        return '#eab308';
-      case 'unavailable':
-        return '#ef4444';
-      default:
-        return '#6b7280';
+      case 'available': return '#22c55e';
+      case 'limited': return '#eab308';
+      case 'unavailable': return '#ef4444';
+      default: return '#6b7280';
     }
   };
 
-  useEffect(() => {
-    if (!mapContainer.current) return;
+  const iconHtml = `
+    <div style="
+      width: 32px;
+      height: 32px;
+      background-color: ${getAvailabilityColor(availability)};
+      border: ${isSelected ? '3px solid #3b82f6' : '2px solid white'};
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      transform: ${isSelected ? 'scale(1.2)' : 'scale(1)'};
+      transition: all 0.2s;
+    ">
+      ${getTypeEmoji(type)}
+    </div>
+  `;
 
-    // For demo purposes, show fallback map since no Mapbox token is configured
-    if (mapContainer.current) {
-      mapContainer.current.innerHTML = `
-        <div style="
-          width: 100%;
-          height: 100%;
-          background: linear-gradient(135deg, #e0f2fe 0%, #e8f5e8 100%);
-          position: relative;
-          overflow: hidden;
-        ">
-          <div style="
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-image: 
-              radial-gradient(circle at 25% 25%, rgba(59, 130, 246, 0.1) 0%, transparent 50%),
-              radial-gradient(circle at 75% 75%, rgba(34, 197, 94, 0.1) 0%, transparent 50%),
-              linear-gradient(45deg, transparent 30%, rgba(59, 130, 246, 0.05) 70%);
-          "></div>
-          <div style="
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            color: #374151;
-            font-family: system-ui;
-            z-index: 1;
-          ">
-            <div style="
-              background: rgba(255, 255, 255, 0.9);
-              padding: 20px;
-              border-radius: 12px;
-              box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-              backdrop-filter: blur(10px);
-            ">
-              <h3 style="margin: 0 0 8px 0; font-size: 18px; font-weight: 600;">🗺️ Egypt Transport Map</h3>
-              <p style="margin: 0; font-size: 14px; color: #6b7280;">Interactive map showing transport locations</p>
-              <p style="margin: 8px 0 0 0; font-size: 12px; color: #9ca3af;">Click transport cards below to view details</p>
-            </div>
-          </div>
-        </div>
-      `;
+  return L.divIcon({
+    html: iconHtml,
+    className: 'custom-div-icon',
+    iconSize: [32, 32],
+    iconAnchor: [16, 16],
+    popupAnchor: [0, -16]
+  });
+};
 
-      // Add transport markers as overlays
-      transportOptions.forEach((transport, index) => {
-        const marker = document.createElement('div');
-        marker.style.cssText = `
-          position: absolute;
-          width: 32px;
-          height: 32px;
-          background-color: ${getAvailabilityColor(transport.availability)};
-          border: 2px solid white;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 14px;
-          cursor: pointer;
-          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-          transition: all 0.2s;
-          z-index: 10;
-          left: ${20 + (index % 5) * 15}%;
-          top: ${30 + Math.floor(index / 5) * 20}%;
-          ${selectedTransport === transport.id ? 'transform: scale(1.2); box-shadow: 0 0 0 3px #3b82f6;' : ''}
-        `;
-        
-        marker.innerHTML = getTypeEmoji(transport.type);
-        marker.title = `${transport.name} - ${transport.location}`;
-        
-        marker.addEventListener('click', () => {
-          onTransportSelect(transport.id);
-        });
-        
-        marker.addEventListener('mouseenter', () => {
-          marker.style.transform = selectedTransport === transport.id ? 'scale(1.3)' : 'scale(1.1)';
-        });
-        
-        marker.addEventListener('mouseleave', () => {
-          marker.style.transform = selectedTransport === transport.id ? 'scale(1.2)' : 'scale(1)';
-        });
-
-        mapContainer.current?.appendChild(marker);
-      });
-    }
-
-    return () => {
-      if (mapContainer.current) {
-        mapContainer.current.innerHTML = '';
-      }
-    };
-  }, [transportOptions, selectedTransport, onTransportSelect]);
-
+const TransportMap: React.FC<TransportMapProps> = ({
+  transportOptions,
+  selectedTransport,
+  onTransportSelect
+}) => {
+  // Egypt center coordinates (Cairo)
+  const egyptCenter: [number, number] = [30.0444, 31.2357]; // [lat, lng]
+  
   return (
     <div className="relative w-full h-96 rounded-lg overflow-hidden shadow-elegant">
-      <div ref={mapContainer} className="w-full h-full" />
+      <MapContainer
+        center={egyptCenter}
+        zoom={6}
+        style={{ height: "100%", width: "100%" }}
+        scrollWheelZoom={true}
+        className="rounded-lg"
+      >
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+
+        {transportOptions.map((option) => (
+          <Marker
+            key={option.id}
+            position={[option.coordinates[1], option.coordinates[0]]} // [lat, lng]
+            icon={createCustomIcon(option.type, option.availability, selectedTransport === option.id)}
+            eventHandlers={{
+              click: () => onTransportSelect(option.id),
+            }}
+          >
+            <Popup>
+              <div className="text-center">
+                <h3 className="font-bold text-lg mb-1">{option.name}</h3>
+                <p className="text-sm text-gray-600 mb-2">{option.location}</p>
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div><strong>Distance:</strong> {option.distance}</div>
+                  <div><strong>Time:</strong> {option.estimatedTime}</div>
+                  <div><strong>Price:</strong> {option.price}</div>
+                  <div><strong>Rating:</strong> ⭐ {option.rating}</div>
+                </div>
+                <div className={`mt-2 px-2 py-1 rounded text-white text-xs ${
+                  option.availability === 'available' ? 'bg-green-500' :
+                  option.availability === 'limited' ? 'bg-yellow-500' : 'bg-red-500'
+                }`}>
+                  {option.availability.toUpperCase()}
+                </div>
+              </div>
+            </Popup>
+          </Marker>
+        ))}
+      </MapContainer>
       
       {/* Legend */}
       <div className="absolute top-4 left-4 bg-background/90 backdrop-blur-sm rounded-lg p-3 shadow-lg">
